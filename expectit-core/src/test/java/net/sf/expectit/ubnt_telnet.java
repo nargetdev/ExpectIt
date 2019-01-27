@@ -52,48 +52,62 @@ public class ubnt_telnet {
 
         TelnetClient telnet = new TelnetClient();
 
-        if (OPT == "UBNT") {
-            telnet.connect("10.200.1.242");
+        String[] SHUTDOWN_REBOOTAUTO_CMDS = {"poe opmode shutdown", "poe opmode auto"};
+
+        int numips = 14;
+        String[] ips = new String[numips];
+        // IP range
+        for (int i = 240; i < 240 + numips; i++){
+            ips[i - 240] = String.format("10.200.1.%d", i);
         }
 
-        else if (OPT == "PRACTICE") {
-            telnet.setDefaultPort(51234);
-            telnet.connect("127.0.0.1");
-        }
+        try {
+            for (String SHUTDOWN_REBOOTAUTO_CMD : SHUTDOWN_REBOOTAUTO_CMDS){
+                for( String ip : ips ){
+                    System.out.println(ip);
+
+                    if (OPT == "UBNT") {
+                        telnet.connect(ip);
+                    }
+
+                    else if (OPT == "PRACTICE") {
+                        telnet.setDefaultPort(51234);
+                        telnet.connect("127.0.0.1");
+                    }
 
 
-        StringBuilder wholeBuffer = new StringBuilder();
-        Expect expect = new ExpectBuilder()
-                .withOutput(telnet.getOutputStream())
-                .withInputs(telnet.getInputStream())
-                .withEchoOutput(wholeBuffer)
-                .withEchoInput(wholeBuffer)
-                .withExceptionOnFailure()
-                .build();
+                    StringBuilder wholeBuffer = new StringBuilder();
+                    Expect expect = new ExpectBuilder()
+                            .withOutput(telnet.getOutputStream())
+                            .withInputs(telnet.getInputStream())
+                            .withEchoOutput(wholeBuffer)
+                            .withEchoInput(wholeBuffer)
+                            .withExceptionOnFailure()
+                            .build();
 
 //        expect.expect(contains("Trying 10.200.1.254..."));
 //        expect.expect(contains("Connected to 10.200.1.254."));
 //        expect.expect(contains("Escape character is '^]'."));
 
-        String printme;
+                    String printme;
 
-        printme = expect.expect(contains("User:")).getInput();
-        System.out.println(printme);
-        expect.sendLine("ubnt");
+                    printme = expect.expect(contains("User:")).getInput();
+                    System.out.println(printme);
+                    expect.sendLine("ubnt");
 
-        printme = expect.expect(contains("Password:")).getInput();
-        System.out.println(printme);
-        expect.sendLine("ubnt");
+                    printme = expect.expect(contains("Password:")).getInput();
+                    System.out.println(printme);
+                    expect.sendLine("ubnt");
 
-        expect.expect(contains("(UBNT EdgeSwitch) >"));
+                    expect.expect(contains("(UBNT EdgeSwitch) >"));
 
-        expect.sendLine("enable");
+                    expect.sendLine("enable");
 
-        expect.expect(contains("(UBNT EdgeSwitch) #"));
+                    expect.expect(contains("(UBNT EdgeSwitch) #"));
 
-        String poe_power_command1 = "show poe status 0/1-0/12";
-        String poe_power_command13 = "show poe status 0/13-0/24";
-        String commands[] = { poe_power_command1, poe_power_command13};
+                    String poe_power_command1 = "show poe status 0/1-0/12";
+                    String poe_power_command13 = "show poe status 0/13-0/24";
+                    String commands[] = { poe_power_command1, poe_power_command13};
 
 
 //        for(;;){
@@ -102,27 +116,27 @@ public class ubnt_telnet {
 //            } catch (InterruptedException e) {
 //                e.printStackTrace();
 //            }
-            for (String command : commands){
-                expect.sendLine(command);
+                    for (String command : commands){
+                        expect.sendLine(command);
 
-                // capture file list
-                List<String> items;
-                for (int i = -3; i < 13; i++){
-                    String list = expect.expect(regexp("\n")).getBefore();
-                    items = Arrays.asList(list.split("\\s* \\s*"));
+                        // capture file list
+                        List<String> items;
+                        for (int i = -3; i < 13; i++){
+                            String list = expect.expect(regexp("\n")).getBefore();
+                            items = Arrays.asList(list.split("\\s* \\s*"));
 
-                    System.out.println("Items: " + items);
+                            System.out.println("Items: " + items);
 
-                    String pattern = "(\\d+)/(\\d+)";
-                    Pattern p = Pattern.compile(pattern);
-                    Matcher m = p.matcher(list);
+                            String pattern = "(\\d+)/(\\d+)";
+                            Pattern p = Pattern.compile(pattern);
+                            Matcher m = p.matcher(list);
 
-                    if (m.find()){
-                        System.out.println("gotem" + list);
-                        System.out.println("Found value: " + m.group(0) );
-                        System.out.println("Found value: " + m.group(1) ); // the
-                        System.out.println("Found value: " + m.group(2) );
-                    }
+                            if (m.find()){
+                                System.out.println("gotem" + list);
+                                System.out.println("Found value: " + m.group(0) );
+                                System.out.println("Found value: " + m.group(1) ); // the
+                                System.out.println("Found value: " + m.group(2) );
+                            }
 //                System.out.println("wattage: " + items.get(3));
 //
 //                if (items.size() >= 7){
@@ -132,34 +146,39 @@ public class ubnt_telnet {
 //                    }
 //                }
 
-                }
+                        }
 
-                expect.expect(contains("(UBNT EdgeSwitch) #"));
-            }
+                        expect.expect(contains("(UBNT EdgeSwitch) #"));
+                    }
 //        }
 
 
-        // navigate to power cycle
-        expect.sendLine("configure");
-        expect.expect(contains("(UBNT EdgeSwitch) (Config)#"));
+                    // navigate to power cycle
+                    expect.sendLine("configure");
+                    expect.expect(contains("(UBNT EdgeSwitch) (Config)#"));
 
-        expect.sendLine("interface 0/1-0/24");
-        expect.expect(contains("(UBNT EdgeSwitch) (Interface 0/1-0/24)#"));
+                    expect.sendLine("interface 0/1-0/24");
+                    expect.expect(contains("(UBNT EdgeSwitch) (Interface 0/1-0/24)#"));
 
-        expect.sendLine("poe opmode shutdown");
-        try {
-            Thread.sleep(POWER_CYCLE_SLEEP);
-        } catch (InterruptedException e) {
+//            expect.sendLine("poe opmode shutdown");
+//            try {
+//                Thread.sleep(POWER_CYCLE_SLEEP);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            expect.sendLine("poe opmode auto");
+                    expect.sendLine(SHUTDOWN_REBOOTAUTO_CMD);
+
+                    String response = wholeBuffer.toString();
+                    System.out.println("The Last Word...");
+                    System.out.println(response);
+
+                    expect.close();
+                }//ip loop
+            }//SHUTDOWN_vs_AUTO
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        expect.sendLine("poe opmode auto");
-
-        String response = wholeBuffer.toString();
-        System.out.println("The Last Word...");
-        System.out.println(response);
-
-        expect.close();
-
-    }
+    }//main
 }
 

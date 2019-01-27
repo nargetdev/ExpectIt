@@ -1,0 +1,18 @@
+%%
+# machine entries have the following format:
+#
+# hostname      hwtype  hwaddr              ipaddr          bootfile
+ubnt0           1       B4:FB:E4:1D:0A:05   10.200.1.240
+ubnt1           1       FC:EC:DA:75:83:E0   10.200.1.241
+ubnt2           1       B4:FB:E4:1D:09:D5   10.200.1.242
+ubnt3           1       FC:EC:DA:75:83:38   10.200.1.243
+ubnt4           1       FC:EC:DA:75:85:48   10.200.1.244
+ubnt5           1       B4:FB:E4:1D:09:15   10.200.1.245
+ubnt6           1       FC:EC:DA:75:85:4B   10.200.1.246
+ubnt7           1       B4:FB:E4:1D:09:1E   10.200.1.247
+ubnt8           1       B4:FB:E4:1D:09:27   10.200.1.248
+ubnt9           1       FC:EC:DA:75:82:39   10.200.1.249
+ubnt10          1       FC:EC:DA:75:8D:A9   10.200.1.250
+ubnt11          1       FC:EC:DA:7F:7F:18   10.200.1.251
+ubnt12          1       B4:FB:E4:1D:08:1C   10.200.1.252
+ubnt13          1       FC:EC:DA:75:85:C9   10.200.1.253
